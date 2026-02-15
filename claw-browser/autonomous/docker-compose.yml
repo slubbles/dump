@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  # Agent 1: The Architect (Brain)
+  architect:
+    build: 
+      context: ..
+      dockerfile: ./autonomous/Dockerfile
+    command: node autonomous/start-architect.js
+    environment:
+      - AGENT_ID=architect-001
+      - AGENT_NAME=The Architect
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+  
+  # Agent 2: The Researcher
+  researcher:
+    build: 
+      context: ..
+      dockerfile: ./autonomous/Dockerfile
+    command: node autonomous/start-researcher.js
+    environment:
+      - AGENT_ID=researcher-001
+      - AGENT_NAME=The Researcher
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+          cpus: '0.75'
+  
+  # Agent 3: Builder Alpha
+  builder-1:
+    build: 
+      context: ..
+      dockerfile: ./autonomous/Dockerfile
+    command: node autonomous/start-builder.js
+    environment:
+      - AGENT_ID=builder-001
+      - AGENT_NAME=Builder Alpha
+      - AGENT_NUM=1
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+          cpus: '1.0'
+  
+  # Agent 4: Builder Beta
+  builder-2:
+    build: 
+      context: ..
+      dockerfile: ./autonomous/Dockerfile
+    command: node autonomous/start-builder.js
+    environment:
+      - AGENT_ID=builder-002
+      - AGENT_NAME=Builder Beta
+      - AGENT_NUM=2
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+          cpus: '1.0'
+  
+  # Agent 5: Quality Checker
+  qa:
+    build: 
+      context: ..
+      dockerfile: ./autonomous/Dockerfile
+    command: node autonomous/start-qa.js
+    environment:
+      - AGENT_ID=qa-001
+      - AGENT_NAME=Quality Checker
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+          cpus: '0.75'
+  
+  # Agent 6: The Marketer
+  marketer:
+    build: 
+      context: ..
+      dockerfile: ./autonomous/Dockerfile
+    command: node autonomous/start-marketer.js
+    environment:
+      - AGENT_ID=marketer-001
+      - AGENT_NAME=The Marketer
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+
+networks:
+  default:
+    name: agent-collective
+
+# Total resources: ~4.5GB RAM, ~4.5 CPU cores
+# Can run on $25/month Railway.app or Fly.io instance

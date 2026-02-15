@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: #09090b;
+    color: #fafafa;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: #ff6b35;
+    color: white;
+  }
+}
+
+@layer utilities {
+  .gradient-text {
+    background: linear-gradient(135deg, #ff6b35 0%, #e63946 50%, #ff6b35 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glow {
+    box-shadow: 0 0 60px -12px rgba(255, 107, 53, 0.2);
+  }
+
+  .animate-pulse-fire {
+    animation: pulse-fire 2.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse-fire {
+    0%, 100% { box-shadow: 0 0 20px 0 rgba(255, 107, 53, 0.25); }
+    50% { box-shadow: 0 0 40px 4px rgba(255, 107, 53, 0.45); }
+  }
+
+  .animate-progress {
+    animation: progress 4s ease-in-out infinite;
+  }
+
+  @keyframes progress {
+    0% { width: 5%; }
+    50% { width: 75%; }
+    100% { width: 95%; }
+  }
+}

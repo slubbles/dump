@@ -1,0 +1,22 @@
+{
+  "generatedAt": "2026-02-14T16:41:31.560Z",
+  "totalScans": 1,
+  "avgSpread": 0.07458229167115345,
+  "maxSpread": 0.07458229167115345,
+  "actionableOpportunities": 0,
+  "opportunities": [
+    {
+      "timestamp": "2026-02-14T16:41:31.559Z",
+      "buy": {
+        "exchange": "kraken",
+        "price": 69480.3
+      },
+      "sell": {
+        "exchange": "binance",
+        "price": 69532.12
+      },
+      "spread": 0.07458229167115345,
+      "potentialProfit": -12.541770832884655
+    }
+  ]
+}

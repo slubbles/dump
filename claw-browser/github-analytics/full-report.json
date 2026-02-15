@@ -1,0 +1,27 @@
+{
+  "repository": "vercel/next.js",
+  "name": "next.js",
+  "description": "The React Framework",
+  "metrics": {
+    "stars": 137666,
+    "forks": 30461,
+    "watchers": 1503,
+    "size_kb": 2483391,
+    "contributors": 429,
+    "open_issues": 3333,
+    "total_issues": 0,
+    "total_prs": 0,
+    "commits_last_week": 143,
+    "commits_52_weeks": 6152
+  },
+  "technology": {
+    "primary_language": "JavaScript",
+    "all_languages": "Batchfile, CSS, HTML, JavaScript, MDX, Pug, Python, Rust, SCSS, Sass, Shell, TypeScript, WebAssembly"
+  },
+  "timeline": {
+    "created": "2016-10-05T23:32:51Z",
+    "last_updated": "2026-02-14T16:39:44Z"
+  },
+  "health_score": 80,
+  "generated_at": "2026-02-14T16:43:07Z"
+}

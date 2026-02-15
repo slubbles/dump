@@ -1,0 +1,27 @@
+{
+  "topic": "browser automation",
+  "timestamp": "2026-02-14T15:55:23.771Z",
+  "tabs": [
+    {
+      "id": "main",
+      "url": "https://github.com/search?q=browser%20automation&type=repositories",
+      "title": "Repository search results · GitHub",
+      "linkCount": 209,
+      "headingCount": 26
+    },
+    {
+      "id": "docs",
+      "url": "https://www.google.com/sorry/index?continue=https://www.google.com/search%3Fq%3Dbrowser%2520automation%2520documentation%26sei%3D5JqQadfgGsbx4-EP4t25OQ&q=EgQXYT6VGOS1wswGIjD_I5B6s9kLYJ5Apw3VzS-LN6UB112-1Q059bEAlpcx_Cp0M9ZRvLqmks3Y5mI__fEyAVJaAUM",
+      "title": "https://www.google.com/search?q=browser%20automation%20documentation&sei=5JqQadfgGsbx4-EP4t25OQ",
+      "linkCount": 3,
+      "headingCount": 0
+    },
+    {
+      "id": "news",
+      "url": "https://news.ycombinator.com/",
+      "title": "Hacker News",
+      "linkCount": 226,
+      "headingCount": 0
+    }
+  ]
+}
