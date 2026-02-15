@@ -241,22 +241,30 @@ export default function RoastResults({ result }) {
               <p className="text-xs text-zinc-600 mb-2">Desktop</p>
               <div className="relative rounded-xl border border-zinc-800 overflow-hidden">
                 <BorderBeam size={200} duration={15} />
-                <img
-                  src={`data:image/png;base64,${screenshots.hero}`}
-                  alt="Desktop screenshot"
-                  className="w-full"
-                />
+                {screenshots?.hero ? (
+                  <img
+                    src={`data:image/png;base64,${screenshots.hero}`}
+                    alt="Desktop screenshot"
+                    className="w-full"
+                  />
+                ) : (
+                  <div className="w-full h-48 bg-zinc-900 flex items-center justify-center text-zinc-600 text-sm">Screenshot unavailable</div>
+                )}
               </div>
             </div>
             <div>
               <p className="text-xs text-zinc-600 mb-2">Mobile</p>
               <div className="relative rounded-xl border border-zinc-800 overflow-hidden">
                 <BorderBeam size={150} duration={15} delay={5} />
-                <img
-                  src={`data:image/png;base64,${screenshots.mobile}`}
-                  alt="Mobile screenshot"
-                  className="w-full"
-                />
+                {screenshots?.mobile ? (
+                  <img
+                    src={`data:image/png;base64,${screenshots.mobile}`}
+                    alt="Mobile screenshot"
+                    className="w-full"
+                  />
+                ) : (
+                  <div className="w-full h-48 bg-zinc-900 flex items-center justify-center text-zinc-600 text-sm">Screenshot unavailable</div>
+                )}
               </div>
             </div>
           </section>

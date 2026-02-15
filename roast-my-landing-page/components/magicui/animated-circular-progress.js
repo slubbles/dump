@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "../../lib/utils";
-import { motion, useAnimation, useInView } from "framer-motion";
+import { useInView } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
 export function AnimatedCircularProgressBar({
@@ -31,7 +31,7 @@ export function AnimatedCircularProgressBar({
 
   return (
     <div ref={ref} className={cn("relative inline-flex items-center justify-center", className)}>
-      <svg className="transform -rotate-90" width="120" height="120" viewBox="0 0 120 120">
+      <svg className="transform -rotate-90 w-full h-full" viewBox="0 0 120 120">
         <circle
           className="transition-all duration-100"
           strokeWidth="8"

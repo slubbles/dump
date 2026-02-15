@@ -15,6 +15,9 @@ export function NumberTicker({
   const [hasAnimated, setHasAnimated] = useState(false);
 
   useEffect(() => {
+    let rafId;
+    let timerId;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !hasAnimated) {
@@ -24,11 +27,11 @@ export function NumberTicker({
           const startValue = direction === "down" ? value : 0;
           const endValue = direction === "down" ? 0 : value;
 
-          const timer = setTimeout(() => {
+          timerId = setTimeout(() => {
             const animate = () => {
               const elapsed = Date.now() - startTime - delay;
               if (elapsed < 0) {
-                requestAnimationFrame(animate);
+                rafId = requestAnimationFrame(animate);
                 return;
               }
               const progress = Math.min(elapsed / duration, 1);
@@ -36,20 +39,22 @@ export function NumberTicker({
               const current = startValue + (endValue - startValue) * eased;
               setDisplayValue(Number(current.toFixed(decimalPlaces)));
               if (progress < 1) {
-                requestAnimationFrame(animate);
+                rafId = requestAnimationFrame(animate);
               }
             };
-            requestAnimationFrame(animate);
+            rafId = requestAnimationFrame(animate);
           }, delay);
-
-          return () => clearTimeout(timer);
         }
       },
       { threshold: 0.5 }
     );
 
     if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (timerId) clearTimeout(timerId);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, [value, direction, delay, hasAnimated, decimalPlaces]);
 
   return (

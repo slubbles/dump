@@ -19,7 +19,7 @@ export function Particles({
   const circles = useRef([]);
   const mouse = useRef({ x: 0, y: 0 });
   const canvasSize = useRef({ w: 0, h: 0 });
-  const dpr = typeof window !== "undefined" ? window.devicePixelRatio : 1;
+  const dpr = useRef(typeof window !== "undefined" ? window.devicePixelRatio : 1);
 
   const hexToRgb = (hex) => {
     hex = hex.replace("#", "");
@@ -49,13 +49,13 @@ export function Particles({
       circles.current.length = 0;
       canvasSize.current.w = canvasContainerRef.current.offsetWidth;
       canvasSize.current.h = canvasContainerRef.current.offsetHeight;
-      canvasRef.current.width = canvasSize.current.w * dpr;
-      canvasRef.current.height = canvasSize.current.h * dpr;
+      canvasRef.current.width = canvasSize.current.w * dpr.current;
+      canvasRef.current.height = canvasSize.current.h * dpr.current;
       canvasRef.current.style.width = `${canvasSize.current.w}px`;
       canvasRef.current.style.height = `${canvasSize.current.h}px`;
-      context.current.setTransform(dpr, 0, 0, dpr, 0, 0);
+      context.current.setTransform(dpr.current, 0, 0, dpr.current, 0, 0);
     }
-  }, [dpr]);
+  }, []);
 
   const drawCircle = useCallback(
     (circle, update = false) => {
@@ -66,12 +66,12 @@ export function Particles({
         context.current.arc(x, y, s, 0, 2 * Math.PI);
         context.current.fillStyle = `rgba(${rgb.join(", ")}, ${alpha})`;
         context.current.fill();
-        context.current.setTransform(dpr, 0, 0, dpr, 0, 0);
+        context.current.setTransform(dpr.current, 0, 0, dpr.current, 0, 0);
 
         if (!update) circles.current.push(circle);
       }
     },
-    [dpr, rgb]
+    [rgb]
   );
 
   const initCanvas = useCallback(() => {
@@ -95,7 +95,9 @@ export function Particles({
     const animate = () => {
       if (context.current) {
         context.current.clearRect(0, 0, canvasSize.current.w, canvasSize.current.h);
-        circles.current.forEach((circle, i) => {
+        // Iterate in reverse to avoid splice-during-forEach index issues
+        for (let i = circles.current.length - 1; i >= 0; i--) {
+          const circle = circles.current[i];
           const edge = [
             circle.x + circle.translateX - circle.size,
             canvasSize.current.w - circle.x - circle.translateX - circle.size,
@@ -106,7 +108,7 @@ export function Particles({
           const remapClosestEdge = parseFloat(
             Math.max(0, Math.min(closestEdge / 20, 1)).toFixed(2)
           );
-          if (remapClosestEdge > 1) {
+          if (remapClosestEdge >= 1) {
             circle.alpha += 0.02;
             if (circle.alpha > circle.targetAlpha) circle.alpha = circle.targetAlpha;
           } else {
@@ -131,7 +133,7 @@ export function Particles({
             const newCircle = circleParams();
             drawCircle(newCircle);
           }
-        });
+        }
       }
       animationId = window.requestAnimationFrame(animate);
     };
