@@ -297,6 +297,44 @@
 4. Post marketing content from LAUNCH-COPY.md
 5. Share first public roasts on social media
 
+### Session 5c — Brutal Roast Upgrade
+
+**Status:** ✅ COMPLETE — Commit 73f03d2
+
+**What Happened:**
+- **Product pivot:** User chose the "brutally sarcastic" roast angle with deep technical diagnostics
+- **Browser Diagnostics** — Enhanced Puppeteer scraper with CDP event listeners:
+  - `page.on('console')` — captures console errors + warnings
+  - `page.on('pageerror')` — captures unhandled JS exceptions
+  - `page.on('requestfailed')` — captures failed network requests
+  - `page.on('response')` — tracks all responses, flags 4xx/5xx as errors
+  - Accessibility audit via `page.evaluate`: missing alt text, empty buttons, heading hierarchy,
+    missing lang attr, low contrast, unlabeled form inputs, unsafe target="_blank", H1 count
+  - Security checks: HTTPS, mixed content, viewport meta, charset declaration
+  - Enhanced performance: FCP, LCP, CLS, resource breakdown by type, transfer size
+  - Mobile: touch target size checking (< 44px minimum)
+- **Claude Prompt Rewrite** — Gordon Ramsay sarcastic persona:
+  - Feeds ALL browser diagnostics as evidence into the prompt
+  - New `roasterComment` field — personal sarcastic message to page owner
+  - New `diagnosticsRoast` object — AI commentary on console errors, network issues,
+    accessibility, security, plus `overallHealthVerdict`
+  - max_tokens increased from 4000 → 5000
+- **Results UI** — "Crime Scene Evidence" diagnostics panel:
+  - `DiagnosticsPanel` component with expandable sections
+  - Console Errors panel (expandable, shows JS exceptions + console errors)
+  - Failed Network Requests panel (expandable, shows method/URL/reason)
+  - Accessibility Issues panel with severity coloring
+  - Security Issues panel
+  - Performance Metrics panel with Web Vitals (FCP, LCP, CLS) + color coding
+  - Network Summary stats (total requests, 2xx/3xx/4xx/5xx breakdown)
+  - "Clean Bill of Health" all-clear message when no issues found
+  - Roaster's Personal Comment callout after verdict section
+
+**Files Modified:**
+- `lib/roast-engine.js` — ~200 lines added (diagnostics capture + prompt rewrite)
+- `app/api/roast/route.js` — added `diagnostics` passthrough
+- `app/results/[id]/RoastResults.js` — +270 lines (DiagnosticsPanel, roasterComment, imports)
+
 ---
 
 ## 🏗️ PRODUCT PORTFOLIO
