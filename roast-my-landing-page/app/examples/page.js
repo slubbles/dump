@@ -1,12 +1,16 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { Flame, ArrowRight, ExternalLink } from 'lucide-react';
+import { MagicCard } from '../../components/magicui/magic-card';
+import { BlurFade } from '../../components/magicui/blur-fade';
+import { BorderBeam } from '../../components/magicui/border-beam';
+import { ShimmerButton } from '../../components/magicui/shimmer-button';
+import { NumberTicker } from '../../components/magicui/number-ticker';
+import { Particles } from '../../components/magicui/particles';
+import { DotPattern } from '../../components/magicui/dot-pattern';
+import { AnimatedCircularProgressBar } from '../../components/magicui/animated-circular-progress';
+import { cn } from '../../lib/utils';
 
-/**
- * Sample roast data — pre-generated from real analyses.
- * These are static so the page loads instantly (no API calls).
- */
 const SAMPLE_ROASTS = [
   {
     url: 'stripe.com',
@@ -52,17 +56,11 @@ const SAMPLE_ROASTS = [
   },
 ];
 
-function ScoreBadge({ score }) {
-  let color = 'text-red-400 bg-red-500/10 border-red-500/20';
-  if (score >= 80) color = 'text-green-400 bg-green-500/10 border-green-500/20';
-  else if (score >= 60) color = 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20';
-  else if (score >= 40) color = 'text-orange-400 bg-orange-500/10 border-orange-500/20';
-
-  return (
-    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-extrabold border ${color}`}>
-      {score}/100
-    </span>
-  );
+function scoreColor(score) {
+  if (score >= 8) return '#22c55e';
+  if (score >= 6) return '#eab308';
+  if (score >= 4) return '#f97316';
+  return '#ef4444';
 }
 
 function MiniBar({ label, value }) {
@@ -75,7 +73,7 @@ function MiniBar({ label, value }) {
     <div className="flex items-center gap-2">
       <span className="text-[10px] text-zinc-500 w-12 shrink-0 uppercase tracking-wider">{label}</span>
       <div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-        <div className={`h-full rounded-full ${barColor}`} style={{ width: `${value * 10}%` }} />
+        <div className={`h-full rounded-full ${barColor} transition-all duration-1000`} style={{ width: `${value * 10}%` }} />
       </div>
       <span className="text-[10px] text-zinc-500 w-4 text-right">{value}</span>
     </div>
@@ -84,110 +82,122 @@ function MiniBar({ label, value }) {
 
 export default function ExamplesPage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
+      {/* Particles */}
+      <Particles
+        className="fixed inset-0 z-0"
+        quantity={40}
+        color="#ff6b35"
+        size={0.4}
+        staticity={40}
+      />
+
       {/* Nav */}
-      <nav className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
+      <nav className="relative z-20 flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
         <a href="/" className="flex items-center gap-2 text-white hover:text-orange-400 transition-colors">
           <Flame className="w-6 h-6 text-orange-500" />
           <span className="font-bold text-lg tracking-tight">PageRoast</span>
         </a>
-        <a
-          href="/"
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 text-sm font-semibold hover:from-orange-400 hover:to-red-400 transition-all"
+        <ShimmerButton
+          shimmerColor="#ff6b35"
+          background="linear-gradient(135deg, #ea580c, #dc2626)"
+          borderRadius="8px"
+          className="px-4 py-2 text-sm font-semibold"
+          onClick={() => window.location.href = '/'}
         >
-          <Flame className="w-3.5 h-3.5" /> Roast Your Page
-        </a>
+          <Flame className="w-3.5 h-3.5 mr-1.5" /> Roast Your Page
+        </ShimmerButton>
       </nav>
 
       {/* Header */}
-      <section className="px-6 pt-16 pb-12 max-w-4xl mx-auto text-center">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-4xl sm:text-5xl font-black tracking-tight mb-4"
-        >
-          The <span className="gradient-text">Wall of Roasts</span>
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="text-zinc-400 text-lg max-w-xl mx-auto"
-        >
-          Real landing pages. Real scores. See what a PageRoast teardown looks like
-          before you submit your own.
-        </motion.p>
+      <section className="relative z-10 px-6 pt-16 pb-12 max-w-4xl mx-auto text-center">
+        <BlurFade delay={0.1}>
+          <h1 className="text-4xl sm:text-5xl font-black tracking-tight mb-4">
+            The <span className="gradient-text">Wall of Roasts</span>
+          </h1>
+        </BlurFade>
+        <BlurFade delay={0.2}>
+          <p className="text-zinc-400 text-lg max-w-xl mx-auto">
+            Real landing pages. Real scores. See what a PageRoast teardown looks like
+            before you submit your own.
+          </p>
+        </BlurFade>
       </section>
 
       {/* Gallery */}
-      <section className="px-6 pb-20 max-w-5xl mx-auto">
+      <section className="relative z-10 px-6 pb-20 max-w-5xl mx-auto">
         <div className="grid md:grid-cols-2 gap-5">
           {SAMPLE_ROASTS.map((roast, i) => (
-            <motion.div
-              key={roast.url}
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.08 }}
-              className="group rounded-2xl border border-zinc-800/60 bg-zinc-900/40 p-6 hover:border-orange-500/20 hover:bg-zinc-900/60 transition-all duration-300"
-            >
-              {/* Top row */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <ExternalLink className="w-3.5 h-3.5 text-zinc-500" />
-                  <span className="text-sm font-semibold text-zinc-300">{roast.url}</span>
+            <BlurFade key={roast.url} delay={0.15 + i * 0.08}>
+              <MagicCard className="p-6" gradientColor="#ff6b3512">
+                {/* Top row */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <ExternalLink className="w-3.5 h-3.5 text-zinc-500" />
+                    <span className="text-sm font-semibold text-zinc-300">{roast.url}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <AnimatedCircularProgressBar
+                      value={roast.score}
+                      gaugeColor={scoreColor(roast.score / 10)}
+                      className="w-12 h-12"
+                    />
+                  </div>
                 </div>
-                <ScoreBadge score={roast.score} />
-              </div>
 
-              {/* Verdict */}
-              <p className="text-sm text-zinc-400 leading-relaxed mb-5 italic">
-                &ldquo;{roast.verdict}&rdquo;
-              </p>
+                {/* Verdict */}
+                <p className="text-sm text-zinc-400 leading-relaxed mb-5 italic">
+                  &ldquo;{roast.verdict}&rdquo;
+                </p>
 
-              {/* Mini category bars */}
-              <div className="space-y-1.5 mb-5">
-                <MiniBar label="Hero" value={roast.categories.hero} />
-                <MiniBar label="CTA" value={roast.categories.cta} />
-                <MiniBar label="Copy" value={roast.categories.copy} />
-                <MiniBar label="Social" value={roast.categories.social} />
-                <MiniBar label="Mobile" value={roast.categories.mobile} />
-                <MiniBar label="Speed" value={roast.categories.speed} />
-                <MiniBar label="Trust" value={roast.categories.trust} />
-                <MiniBar label="Design" value={roast.categories.design} />
-              </div>
+                {/* Mini category bars */}
+                <div className="space-y-1.5 mb-5">
+                  <MiniBar label="Hero" value={roast.categories.hero} />
+                  <MiniBar label="CTA" value={roast.categories.cta} />
+                  <MiniBar label="Copy" value={roast.categories.copy} />
+                  <MiniBar label="Social" value={roast.categories.social} />
+                  <MiniBar label="Mobile" value={roast.categories.mobile} />
+                  <MiniBar label="Speed" value={roast.categories.speed} />
+                  <MiniBar label="Trust" value={roast.categories.trust} />
+                  <MiniBar label="Design" value={roast.categories.design} />
+                </div>
 
-              {/* Key issues */}
-              <div className="space-y-1">
-                {roast.highlights.map((h, j) => (
-                  <p key={j} className="text-xs text-zinc-500 flex items-start gap-1.5">
-                    <span className="text-orange-500 mt-0.5 shrink-0">&#x2022;</span>
-                    {h}
-                  </p>
-                ))}
-              </div>
-            </motion.div>
+                {/* Key issues */}
+                <div className="space-y-1">
+                  {roast.highlights.map((h, j) => (
+                    <p key={j} className="text-xs text-zinc-500 flex items-start gap-1.5">
+                      <span className="text-orange-500 mt-0.5 shrink-0">&#x2022;</span>
+                      {h}
+                    </p>
+                  ))}
+                </div>
+              </MagicCard>
+            </BlurFade>
           ))}
         </div>
 
         {/* Bottom CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mt-16"
-        >
-          <p className="text-zinc-500 mb-4">Think your page can beat these scores?</p>
-          <a
-            href="/"
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 font-bold text-lg hover:from-orange-400 hover:to-red-400 transition-all animate-pulse-fire"
-          >
-            Roast my page <ArrowRight className="w-5 h-5" />
-          </a>
-        </motion.div>
+        <BlurFade delay={0.6}>
+          <div className="text-center mt-16">
+            <p className="text-zinc-500 mb-4">Think your page can beat these scores?</p>
+            <ShimmerButton
+              shimmerColor="#ff6b35"
+              background="linear-gradient(135deg, #ea580c, #dc2626)"
+              borderRadius="12px"
+              shimmerDuration="2s"
+              className="px-8 py-4 text-lg font-bold mx-auto"
+              onClick={() => window.location.href = '/'}
+            >
+              <Flame className="w-5 h-5 mr-2" />
+              Roast my page
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </ShimmerButton>
+          </div>
+        </BlurFade>
       </section>
 
       {/* Footer */}
-      <footer className="px-6 py-6 border-t border-zinc-900">
+      <footer className="relative z-10 px-6 py-6 border-t border-zinc-900">
         <div className="max-w-4xl mx-auto flex items-center justify-between text-xs text-zinc-600">
           <a href="/" className="flex items-center gap-2 hover:text-zinc-400 transition-colors">
             <Flame className="w-3.5 h-3.5 text-orange-500/50" />
