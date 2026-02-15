@@ -3,24 +3,67 @@
  * 
  * Scrapes a landing page, extracts key elements, and generates
  * an AI-powered conversion analysis ("roast").
+ * 
+ * Supports both local (full Puppeteer) and serverless (@sparticuz/chromium).
  */
 
-import puppeteer from 'puppeteer';
+import puppeteerCore from 'puppeteer-core';
+
+/**
+ * Get a browser instance — works locally AND on Vercel/Lambda
+ */
+async function getBrowser() {
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+    // Serverless environment — use stripped Chromium
+    const chromium = await import('@sparticuz/chromium');
+    return puppeteerCore.launch({
+      args: chromium.default.args,
+      defaultViewport: chromium.default.defaultViewport,
+      executablePath: await chromium.default.executablePath(),
+      headless: chromium.default.headless,
+    });
+  }
+
+  // Local development — try system Chrome, fall back to full puppeteer
+  try {
+    const puppeteer = await import('puppeteer');
+    return puppeteer.default.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--single-process',
+      ],
+    });
+  } catch {
+    // Fallback: puppeteer-core with common Chrome paths
+    const paths = [
+      '/usr/bin/google-chrome',
+      '/usr/bin/chromium-browser',
+      '/usr/bin/chromium',
+      process.env.CHROME_PATH,
+    ].filter(Boolean);
+
+    for (const p of paths) {
+      try {
+        return await puppeteerCore.launch({
+          executablePath: p,
+          headless: true,
+          args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+        });
+      } catch { /* try next */ }
+    }
+    throw new Error('No Chrome/Chromium installation found');
+  }
+}
 
 /**
  * Capture screenshot and extract page data
  */
 export async function scrapeLandingPage(url) {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-gpu',
-      '--single-process',
-    ],
-  });
+  const browser = await getBrowser();
 
   try {
     const page = await browser.newPage();

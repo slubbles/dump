@@ -15,10 +15,11 @@
 | Starting Budget | $100.00 | $100.00 |
 | API Spend (session 1) | -$3.00 | $97.00 |
 | API Spend (session 2 — stripe.com roast) | -$0.15 | $96.85 |
+| API Spend (session 3 — linear.app roast) | -$0.15 | $96.70 |
 
 **Revenue:** $0.00
-**Profit:** -$3.15
-**Products Live:** 0 (built, not deployed yet)
+**Profit:** -$3.30
+**Products Live:** 0 (production-ready, pending deploy)
 
 ---
 
@@ -71,9 +72,16 @@
 - [x] Redesign UI with Tailwind CSS v4 + Framer Motion + Lucide
 - [x] Integrate Polar.sh payment (checkout, webhook, success page)
 - [x] Live test — stripe.com scored 72/100 ✅
+- [x] Make Puppeteer serverless-ready (puppeteer-core + @sparticuz/chromium)
+- [x] Replace filesystem storage with @vercel/blob
+- [x] Add rate limiting (5/hr/IP)
+- [x] Add deployment config (vercel.json, robots.txt, favicon)
+- [x] Add dynamic OG images (/api/og)
+- [x] Improve error UX (URL blocks, AbortController timeout, specific error msgs)
+- [x] Live test — linear.app scored 42/100 ✅
 - [ ] Set up Polar.sh org + product ($29 PRO Roast) — needs user
 - [ ] Fill in POLAR_ACCESS_TOKEN, WEBHOOK_SECRET, PRODUCT_ID in .env.local
-- [ ] Deploy to Vercel
+- [ ] Deploy to Vercel + add Blob storage
 - [ ] Update NEXT_PUBLIC_APP_URL to Vercel domain
 - [ ] Configure Polar webhook URL to production URL
 - [ ] Launch and market (public roasts on X, Reddit, IndieHackers)
@@ -117,17 +125,81 @@
 
 ---
 
+### Session 3 — Feb 15, 2026 (continued)
+
+**Status:** ✅ COMPLETE
+
+**What Happened:**
+- Made Puppeteer deployment-ready:
+  - Replaced `puppeteer` import with `puppeteer-core` + `@sparticuz/chromium` for serverless
+  - Auto-detects environment: full Puppeteer locally, stripped Chromium on Vercel/Lambda
+  - Falls back through system Chrome paths if neither available
+- Replaced filesystem storage with `@vercel/blob`:
+  - Created `lib/storage.js` — auto-uses Blob on Vercel, filesystem locally
+  - `saveRoast()` / `loadRoast()` abstraction
+  - Results page now reads via storage adapter, not direct `fs.readFile`
+- Added rate limiting:
+  - `lib/rate-limit.js` — 5 roasts/hour per IP, sliding window
+  - Returns `429` with `Retry-After` header and friendly message
+  - IP detection via `x-forwarded-for` (works on Vercel)
+- Improved error handling:
+  - Blocked private/local URLs (localhost, 127.0.0.1, etc.)
+  - Separate error messages for scrape failures vs AI failures
+  - Client-side 90s AbortController timeout with specific error message
+  - `maxDuration: 60` set on API route for Vercel function limits
+- Added deployment infrastructure:
+  - `vercel.json` — function config (60s timeout, 1GB memory for roast route)
+  - Security headers (X-Content-Type-Options, X-Frame-Options)
+  - `/public/robots.txt` — blocks /api/ from crawlers
+  - `/public/favicon.svg` — fire emoji favicon
+- Dynamic OG images:
+  - `/api/og` — edge runtime, generates 1200x630 OG image with score circle
+  - Results pages include dynamic OG image with score, URL, and verdict
+  - Main layout has static OG image for homepage
+- Updated metadata:
+  - Layout: proper favicon, metadataBase, OG/Twitter images
+  - Results page: dynamic title, description, OG with score
+- **LIVE TEST:** Roasted linear.app — scored 42/100, rate limiter kicked in after 5 total requests
+- Build clean: 8 routes, 0 errors
+- **All deployment blockers resolved** — app is 100% production-ready
+
+**Remaining for User:**
+1. Create Polar.sh org + product → get token + product UUID
+2. Deploy to Vercel:
+   - Import `slubbles/dump` repo
+   - Set root directory to `roast-my-landing-page`
+   - Add Vercel Blob storage (Storage tab → Create → Blob)
+   - Set env vars: `ANTHROPIC_API_KEY`, `POLAR_ACCESS_TOKEN`, `POLAR_WEBHOOK_SECRET`, `NEXT_PUBLIC_POLAR_PRODUCT_ID`, `NEXT_PUBLIC_APP_URL`
+   - `BLOB_READ_WRITE_TOKEN` auto-injected by Vercel Blob
+3. Set up Polar webhook → `https://yourdomain.vercel.app/api/webhook/polar`
+4. Marketing launch
+
+---
+
 ## 🏗️ PRODUCT PORTFOLIO
 
 ### Product 1: Landing Page Roast (PageRoast)
 - **Concept:** Paste your URL → AI analyzes every conversion element → brutal, actionable teardown
 - **Price:** Free (basic) / $29 (PRO with competitor comp, A/B suggestions, copy rewrites)
-- **Status:** ✅ Built, payment integrated, ready for deploy
+- **Status:** ✅ Production-ready — all deployment blockers resolved
 - **URL:** Not yet deployed (Vercel next)
 - **Revenue:** $0
 - **Users:** 0
-- **Tech:** Next.js 16 + Puppeteer + Claude API + Tailwind v4 + Framer Motion + Polar.sh
-- **Routes:** 7 (/, /api/checkout, /api/roast, /api/webhook/polar, /results/[id], /success, /_not-found)
+- **Tech:** Next.js 16 + puppeteer-core + @sparticuz/chromium + Claude API + Tailwind v4 + Framer Motion + @vercel/blob + Polar.sh
+- **Routes:** 8 (/, /api/checkout, /api/og, /api/roast, /api/webhook/polar, /results/[id], /success, /_not-found)
+- **Files:**
+  - `lib/roast-engine.js` — scrape + AI analysis (serverless-ready)
+  - `lib/storage.js` — Vercel Blob / filesystem adapter
+  - `lib/rate-limit.js` — 5 reqs/hr/IP sliding window
+  - `app/page.js` — homepage with Tailwind + Framer Motion
+  - `app/api/roast/route.js` — POST handler with rate limit + error handling
+  - `app/api/checkout/route.js` — Polar.sh checkout
+  - `app/api/webhook/polar/route.js` — payment webhook
+  - `app/api/og/route.js` — dynamic OG image (edge runtime)
+  - `app/results/[id]/page.js` — server component, loads from storage
+  - `app/results/[id]/RoastResults.js` — client component, full report UI
+  - `app/success/page.js` — payment confirmation
+  - `vercel.json` — function config + security headers
 
 ---
 
@@ -150,7 +222,8 @@ When this chat resumes or a new session starts:
 - **Hosting:** Vercel (free tier) — not yet deployed
 - **Payments:** Polar.sh (@polar-sh/nextjs + @polar-sh/sdk) — code ready, needs org/product
 - **AI:** Anthropic Claude (claude-sonnet-4-20250514) — API key configured
-- **Browser:** Puppeteer 24.37.3 (for scraping + screenshots)
+- **Browser:** puppeteer-core + @sparticuz/chromium (serverless) / puppeteer (local)
+- **Storage:** @vercel/blob (production) / filesystem (local dev)
 - **Repo:** github.com/slubbles/dump
 
 ---

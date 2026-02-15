@@ -1,18 +1,24 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Roast My Landing Page — AI-Powered Conversion Teardown',
+  title: 'PageRoast — AI-Powered Landing Page Roast',
   description: 'Get a brutally honest, AI-powered analysis of your landing page. Find conversion killers, get actionable fixes, and boost your conversion rate. Instant results.',
   keywords: 'landing page, conversion rate optimization, CRO, A/B testing, roast, analysis, review',
+  icons: {
+    icon: '/favicon.svg',
+  },
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   openGraph: {
-    title: 'Roast My Landing Page 🔥',
-    description: 'Get your landing page brutally roasted by AI. Find conversion killers in 30 seconds.',
+    title: 'PageRoast — Your Landing Page is Leaking Conversions 🔥',
+    description: 'Paste a URL. Get a brutally honest AI teardown — hero, CTAs, copy, social proof, mobile, speed — scored in 30 seconds.',
     type: 'website',
+    images: ['/api/og'],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Roast My Landing Page 🔥',
-    description: 'Your landing page is killing conversions. Let AI roast it and tell you why.',
+    title: 'PageRoast — Your Landing Page is Leaking Conversions 🔥',
+    description: 'Paste a URL. Get a brutally honest AI teardown — hero, CTAs, copy, social proof, mobile, speed — scored in 30 seconds.',
+    images: ['/api/og'],
   },
 };
 

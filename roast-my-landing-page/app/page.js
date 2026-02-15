@@ -74,21 +74,32 @@ export default function Home() {
       setLoadingStep(prev => (prev + 1) % loadingSteps.length);
     }, 3000);
 
+    // Abort if it takes too long (90s)
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 90000);
+
     try {
       const res = await fetch('/api/roast', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: cleanUrl }),
+        signal: controller.signal,
       });
 
       const data = await res.json();
       clearInterval(interval);
+      clearTimeout(timeout);
 
       if (!res.ok) throw new Error(data.error || 'Something went wrong');
       router.push(`/results/${data.id}`);
     } catch (err) {
       clearInterval(interval);
-      setError(err.message);
+      clearTimeout(timeout);
+      if (err.name === 'AbortError') {
+        setError('That page is taking too long to analyze. Try a simpler page, or try again later.');
+      } else {
+        setError(err.message);
+      }
       setLoading(false);
     }
   };

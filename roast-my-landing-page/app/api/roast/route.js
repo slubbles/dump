@@ -1,10 +1,22 @@
 import { scrapeLandingPage, generateRoast } from '../../../lib/roast-engine.js';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { saveRoast } from '../../../lib/storage.js';
+import { checkRateLimit, getClientIp } from '../../../lib/rate-limit.js';
 import crypto from 'crypto';
+
+export const maxDuration = 60; // Vercel Pro allows up to 300s, free = 60s
 
 export async function POST(request) {
   try {
+    // Rate limit
+    const ip = getClientIp(request);
+    const limit = checkRateLimit(ip);
+    if (!limit.allowed) {
+      return Response.json(
+        { error: `Slow down — you can roast again in ${limit.resetIn} seconds. (5 free roasts/hour)` },
+        { status: 429, headers: { 'Retry-After': String(limit.resetIn) } }
+      );
+    }
+
     const { url, email } = await request.json();
 
     if (!url) {
@@ -16,7 +28,13 @@ export async function POST(request) {
     try {
       cleanUrl = new URL(url).href;
     } catch {
-      return Response.json({ error: 'Invalid URL' }, { status: 400 });
+      return Response.json({ error: 'Invalid URL — try something like https://example.com' }, { status: 400 });
+    }
+
+    // Block obviously bad URLs
+    const blocked = ['localhost', '127.0.0.1', '0.0.0.0', '192.168.', '10.', '[::1]'];
+    if (blocked.some(b => cleanUrl.includes(b))) {
+      return Response.json({ error: 'Cannot roast local/private URLs' }, { status: 400 });
     }
 
     // Generate unique ID for this roast
@@ -24,16 +42,31 @@ export async function POST(request) {
 
     // Step 1: Scrape the landing page
     console.log(`[ROAST ${id}] Scraping ${cleanUrl}...`);
-    const scrapedData = await scrapeLandingPage(cleanUrl);
+    let scrapedData;
+    try {
+      scrapedData = await scrapeLandingPage(cleanUrl);
+    } catch (err) {
+      console.error(`[ROAST ${id}] Scrape failed:`, err.message);
+      return Response.json(
+        { error: `Couldn't access that page — it may be blocking scrapers, behind a login, or taking too long to load.` },
+        { status: 422 }
+      );
+    }
 
     // Step 2: Generate the roast
     console.log(`[ROAST ${id}] Generating roast...`);
-    const roast = await generateRoast(scrapedData);
+    let roast;
+    try {
+      roast = await generateRoast(scrapedData);
+    } catch (err) {
+      console.error(`[ROAST ${id}] AI analysis failed:`, err.message);
+      return Response.json(
+        { error: 'AI analysis failed — please try again in a moment.' },
+        { status: 502 }
+      );
+    }
 
-    // Step 3: Save the results
-    const resultDir = path.join(process.cwd(), 'data', 'roasts');
-    await mkdir(resultDir, { recursive: true });
-
+    // Step 3: Build result object
     const result = {
       id,
       url: cleanUrl,
@@ -49,10 +82,8 @@ export async function POST(request) {
       createdAt: new Date().toISOString(),
     };
 
-    await writeFile(
-      path.join(resultDir, `${id}.json`),
-      JSON.stringify(result, null, 2)
-    );
+    // Step 4: Persist
+    await saveRoast(id, result);
 
     console.log(`[ROAST ${id}] Complete! Score: ${roast.overallScore}/100`);
 
